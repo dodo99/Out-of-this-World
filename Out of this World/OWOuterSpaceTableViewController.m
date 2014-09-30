@@ -18,6 +18,31 @@
 
 @implementation OWOuterSpaceTableViewController
 
+#pragma mark - Lazy instantiation of Properties
+
+-(NSMutableArray *)plantes
+{
+    if (!_planets)
+    {
+        _planets = [[NSMutableArray alloc] init];
+    }
+    
+    return  _planets;
+}
+
+
+-(NSMutableArray *)addedSpaceObjects
+{
+    if (!_addedSpaceObjects)
+    {
+        _addedSpaceObjects = [[NSMutableArray alloc] init];
+    }
+    
+    return _addedSpaceObjects;
+    
+}
+
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -59,7 +84,17 @@
         {
             OWSpaceImageViewController *nextViewController = segue.destinationViewController;
             NSIndexPath *path = [self.tableView indexPathForCell:sender];
-            OWSpaceObject *selectedObject = self.planets[path.row];
+            OWSpaceObject *selectedObject;
+            
+            if (path.section == 0)
+            {
+                selectedObject = self.planets[path.row];
+            }
+            else if (path.section == 1)
+            {
+                selectedObject = self.addedSpaceObjects[path.row];
+            }
+            
             nextViewController.spaceObject = selectedObject;
         }
     }
@@ -72,9 +107,25 @@
         {
             OWSpaceDataViewController *targetViewController = segue.destinationViewController;
             NSIndexPath *path = sender;
-            OWSpaceObject *selectedObject = self.planets[path.row];
+            OWSpaceObject *selectedObject;
+            
+            if (path.section == 0)
+            {
+                selectedObject = self.planets[path.row];
+            }
+            else if (path.section == 1)
+            {
+                selectedObject = self.addedSpaceObjects[path.row];
+            }
+
             targetViewController.spaceObject = selectedObject;
         }
+    }
+    
+    if ([segue.destinationViewController isKindOfClass: [OWAddSpaceObjectViewController class]])
+    {
+        OWAddSpaceObjectViewController *addSpaceVC = segue.destinationViewController;
+        addSpaceVC.delegate = self;
     }
 }
 
@@ -90,13 +141,28 @@
 {
 #warning Potentially incomplete method implementation.
     // Return the number of sections.
-    return 1;
+    
+    if ([self.addedSpaceObjects count])
+    {
+        return 2;
+    }
+    else
+    {
+        return 1;
+    }
+    
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
 #warning Incomplete method implementation.
     // Return the number of rows in the section.
+    
+    if (section == 1)
+    {
+        return  [self.addedSpaceObjects count];
+    }
+    
     return [self.planets count];
 }
 
@@ -107,11 +173,24 @@
     
     // Configure the cell...
     
-    /* Access the OWSpaceObject from our planets array. Use the OWSpaceObject's properties to update the cell's properties.*/
-    OWSpaceObject *planet = [self.planets objectAtIndex:indexPath.row];
-    cell.textLabel.text = planet.name;
-    cell.detailTextLabel.text = planet.nickname;
-    cell.imageView.image = planet.spaceImage;
+    if (indexPath.section == 1)
+    {
+        //use new Space object to customize our cell
+        OWSpaceObject *planet = [self.addedSpaceObjects objectAtIndex: indexPath.row];
+        cell.textLabel.text = planet.name;
+        cell.detailTextLabel.text = planet.nickname;
+        cell.imageView.image = planet.spaceImage;
+        
+    }
+    else
+    {
+        
+        /* Access the OWSpaceObject from our planets array. Use the OWSpaceObject's properties to update the cell's properties.*/
+        OWSpaceObject *planet = [self.planets objectAtIndex:indexPath.row];
+        cell.textLabel.text = planet.name;
+        cell.detailTextLabel.text = planet.nickname;
+        cell.imageView.image = planet.spaceImage;
+    }
     
     /* Customize the appearence of the TableViewCells. */
     cell.backgroundColor = [UIColor clearColor];
@@ -120,6 +199,33 @@
     
     return cell;
 }
+
+#pragma mark - OWAddSpaceObjectViewController
+
+-(void)didCancel
+{
+    
+    NSLog( @"didCancel");
+    [self dismissViewControllerAnimated: YES completion: nil];
+}
+
+
+-(void)addSpaceObject:(OWSpaceObject *)spaceObject
+{
+    if (!self.addedSpaceObjects)
+    {
+        self.addedSpaceObjects = [[NSMutableArray alloc] init];
+    }
+    
+    [self.addedSpaceObjects addObject: spaceObject];
+    
+    NSLog( @"addSpaceObject");
+    [self dismissViewControllerAnimated: YES completion: nil];
+    
+    [self.tableView reloadData];
+}
+
+
 
 #pragma mark UITableView Delegate
 
