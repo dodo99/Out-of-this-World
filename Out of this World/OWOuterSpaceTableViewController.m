@@ -30,7 +30,6 @@
     return  _planets;
 }
 
-
 -(NSMutableArray *)addedSpaceObjects
 {
     if (!_addedSpaceObjects)
@@ -63,7 +62,8 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
     /* Allocate and initialize our planets array */
-    self.planets = [[NSMutableArray alloc] init];
+    //don't need the code since lazy instantiation will take care of it
+    //self.planets = [[NSMutableArray alloc] init];
 
     /* Use fast enumeration to iterate through all NSMutableDictionaries in the array returned from the class method allKnownPlanets. First create an NSString with the planet's file name. Use a format string to add the .jpg extension to each planet name. Create a OWSpace object and use the custom initializer initWithData. Pass in both the dictionary and a UIImage object. Add the planet object to the planets array. */
     for (NSMutableDictionary *planetData in [AstronomicalData allKnownPlanets])
@@ -212,10 +212,13 @@
 
 -(void)addSpaceObject:(OWSpaceObject *)spaceObject
 {
+    //don't need the code since lazy instantiation will take care of it
+    /*
     if (!self.addedSpaceObjects)
     {
         self.addedSpaceObjects = [[NSMutableArray alloc] init];
     }
+    */
     
     [self.addedSpaceObjects addObject: spaceObject];
     
